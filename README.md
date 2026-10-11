@@ -41,3 +41,39 @@ The repository tracks generated visual artifacts for immediate reporting:
       monthly_trend_line.png: Temporal progression of delays across months.
       airline_delays_bar.png: Comparative delay breakdown across major carriers.
       root_causes_bar.png: Root-cause distribution of delay factors.
+
+Execution Guide
+Step 1: Launch WSL and Start Hadoop HDFS
+Open your WSL/Ubuntu terminal and start your Hadoop Distributed File System services:
+Bash
+   start-dfs.sh
+Step 2: Verify Active Services
+Bash
+   jps
+Step 3: Navigate to Your Project Directory
+Bash
+   cd /mnt/c/Users/user/flight_project_repo
+Step 4: Run the PySpark Analytics Pipeline
+Bash
+   spark-submit analyze_terminal.py
+# 1. Run the plotting scripts
+   spark-submit generate_all_plots.py
+   spark-submit generate_root_causes_plot.py
+# 2. Open all generated plot images directly in Windows
+    explorer.exe monthly_delay.png
+    explorer.exe monthly_trend_line.png
+    explorer.exe airline_delays_bar.png
+    explorer.exe root_causes_bar.png
+
+5.open the interactive dashboard in your Windows web browser:
+Bash
+   explorer.exe index.html
+
+Suggested Flow for Your Final Review Presentation:
+1.The Infrastructure & Logs: Start by running start-dfs.sh and spark-submit analyze_terminal.py to prove the Big Data pipeline runs live on Hadoop HDFS and PySpark.
+2.The Visualizations: Run your plotting scripts and pop open the charts using explorer.exe monthly_trend_line.png (and the others) to show statistical breakdowns.
+3.The Climax (The Dashboard): Open your live GitHub Pages link or run explorer.exe index.html to show off the fully interactive UI, complete with filters, KPI metric cards, and the interactive Spark CLI terminal drawer!
+
+
+
+      
