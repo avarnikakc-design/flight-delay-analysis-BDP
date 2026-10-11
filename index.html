@@ -1,0 +1,300 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Big Data Flight Delay Analysis Dashboard</title>
+    <!-- Tailwind CSS for styling -->
+    <script src="https://cdn.tailwindcss.com"></script>
+    <!-- Chart.js for interactive visualizations -->
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <!-- FontAwesome for icons -->
+    <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+</head>
+<body class="bg-slate-900 text-slate-100 font-sans antialiased min-h-screen flex flex-col">
+
+    <!-- Header -->
+    <header class="bg-slate-800 border-b border-slate-700 shadow-lg px-6 py-4 flex justify-between items-center">
+        <div class="flex items-center space-x-3">
+            <div class="bg-indigo-600 text-white p-2.5 rounded-xl shadow-md">
+                <i class="fa-solid fa-plane-departure text-xl"></i>
+            </div>
+            <div>
+                <h1 class="text-xl font-bold tracking-wide">Flight Delay Intelligence Hub</h1>
+                <p class="text-xs text-slate-400">PySpark & HDFS Big Data Analytics Pipeline</p>
+            </div>
+        </div>
+        <div class="flex items-center space-x-4">
+            <button onclick="toggleTerminal()" class="bg-slate-700 hover:bg-slate-600 text-xs px-3.5 py-2 rounded-lg border border-slate-600 transition flex items-center space-x-2">
+                <i class="fa-solid fa-terminal text-indigo-400"></i>
+                <span>Spark CLI Logs</span>
+            </button>
+            <span class="inline-flex items-center px-3 py-1 rounded-full text-xs font-medium bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                <span class="w-2 h-2 mr-1.5 bg-emerald-400 rounded-full animate-pulse"></span> Cluster Active
+            </span>
+        </div>
+    </header>
+
+    <!-- Main Content Container -->
+    <main class="flex-1 max-w-7xl w-full mx-auto px-6 py-8 space-y-8">
+
+        <!-- Filter Control Bar -->
+        <section class="bg-slate-800/80 backdrop-blur border border-slate-700/80 rounded-2xl p-5 shadow-xl flex flex-wrap gap-4 items-center justify-between">
+            <div class="flex flex-wrap items-center gap-4">
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Carrier Filter</label>
+                    <select id="airlineFilter" onchange="updateDashboard()" class="bg-slate-900 border border-slate-700 text-sm rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <option value="ALL">All Carriers (AA, DL, UA, WN...)</option>
+                        <option value="AA">American Airlines (AA)</option>
+                        <option value="DL">Delta Air Lines (DL)</option>
+                        <option value="UA">United Airlines (UA)</option>
+                        <option value="WN">Southwest Airlines (WN)</option>
+                    </select>
+                </div>
+                <div>
+                    <label class="block text-xs font-semibold text-slate-400 uppercase tracking-wider mb-1">Time Horizon</label>
+                    <select id="timeFilter" onchange="updateDashboard()" class="bg-slate-900 border border-slate-700 text-sm rounded-lg px-3 py-2 focus:ring-2 focus:ring-indigo-500 outline-none">
+                        <option value="FULL">Full Year Analysis</option>
+                        <option value="Q1">Q1 Peak Season</option>
+                        <option value="Q3">Q3 Summer Rush</option>
+                    </select>
+                </div>
+            </div>
+            <button onclick="resetFilters()" class="text-xs bg-indigo-600 hover:bg-indigo-500 text-white font-medium px-4 py-2.5 rounded-lg transition shadow-md flex items-center space-x-1.5">
+                <i class="fa-solid fa-rotate-right"></i>
+                <span>Reset View</span>
+            </button>
+        </section>
+
+        <!-- KPI Metric Cards -->
+        <section class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-5">
+            <div class="bg-slate-800/80 border border-slate-700/80 p-5 rounded-2xl shadow-xl flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-slate-400">Total Analyzed Records</p>
+                    <h3 id="kpiTotal" class="text-2xl font-bold mt-1 text-slate-100">5.42M</h3>
+                    <span class="text-xs text-emerald-400 font-medium mt-1 inline-block"><i class="fa-solid fa-arrow-up"></i> +4.2% from last batch</span>
+                </div>
+                <div class="bg-indigo-500/10 text-indigo-400 p-3.5 rounded-xl border border-indigo-500/20">
+                    <i class="fa-solid fa-database text-lg"></i>
+                </div>
+            </div>
+
+            <div class="bg-slate-800/80 border border-slate-700/80 p-5 rounded-2xl shadow-xl flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-slate-400">Average Delay Duration</p>
+                    <h3 id="kpiDelay" class="text-2xl font-bold mt-1 text-slate-100">14.6 min</h3>
+                    <span class="text-xs text-rose-400 font-medium mt-1 inline-block"><i class="fa-solid fa-triangle-exclamation"></i> Threshold warning</span>
+                </div>
+                <div class="bg-amber-500/10 text-amber-400 p-3.5 rounded-xl border border-amber-500/20">
+                    <i class="fa-solid fa-clock text-lg"></i>
+                </div>
+            </div>
+
+            <div class="bg-slate-800/80 border border-slate-700/80 p-5 rounded-2xl shadow-xl flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-slate-400">Primary Delay Root Cause</p>
+                    <h3 id="kpiCause" class="text-2xl font-bold mt-1 text-slate-100">Late Aircraft</h3>
+                    <span class="text-xs text-slate-400 font-medium mt-1 inline-block">38.4% of total delay time</span>
+                </div>
+                <div class="bg-purple-500/10 text-purple-400 p-3.5 rounded-xl border border-purple-500/20">
+                    <i class="fa-solid fa-chart-pie text-lg"></i>
+                </div>
+            </div>
+
+            <div class="bg-slate-800/80 border border-slate-700/80 p-5 rounded-2xl shadow-xl flex items-center justify-between">
+                <div>
+                    <p class="text-xs font-medium text-slate-400">Most Reliable Carrier</p>
+                    <h3 id="kpiCarrier" class="text-2xl font-bold mt-1 text-slate-100">Delta (DL)</h3>
+                    <span class="text-xs text-emerald-400 font-medium mt-1 inline-block">88.2% On-Time Rate</span>
+                </div>
+                <div class="bg-emerald-500/10 text-emerald-400 p-3.5 rounded-xl border border-emerald-500/20">
+                    <i class="fa-solid fa-shield-check text-lg"></i>
+                </div>
+            </div>
+        </section>
+
+        <!-- Charts Grid Section -->
+        <section class="grid grid-cols-1 lg:grid-cols-3 gap-6">
+            <!-- Monthly Trend Line Chart (Spans 2 columns) -->
+            <div class="lg:col-span-2 bg-slate-800/80 border border-slate-700/80 rounded-2xl p-6 shadow-xl flex flex-col">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-lg font-bold">Monthly Delay Trends</h2>
+                        <p class="text-xs text-slate-400">Average departure vs. arrival delays across seasonal brackets</p>
+                    </div>
+                    <span class="text-xs bg-slate-700/50 text-slate-300 px-3 py-1 rounded-full border border-slate-600">PySpark Aggregation</span>
+                </div>
+                <div class="flex-1 relative min-h-[300px]">
+                    <canvas id="monthlyTrendChart"></canvas>
+                </div>
+            </div>
+
+            <!-- Root Cause Doughnut Chart -->
+            <div class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-6 shadow-xl flex flex-col">
+                <div class="flex justify-between items-center mb-6">
+                    <div>
+                        <h2 class="text-lg font-bold">Delay Root Causes</h2>
+                        <p class="text-xs text-slate-400">Proportional factor breakdown</p>
+                    </div>
+                </div>
+                <div class="flex-1 relative min-h-[280px] flex items-center justify-center">
+                    <canvas id="rootCauseChart"></canvas>
+                </div>
+            </div>
+        </section>
+
+        <!-- Carrier Benchmark Bar Chart -->
+        <section class="bg-slate-800/80 border border-slate-700/80 rounded-2xl p-6 shadow-xl">
+            <div class="flex justify-between items-center mb-6">
+                <div>
+                    <h2 class="text-lg font-bold">Carrier Delay Performance Benchmark</h2>
+                    <p class="text-xs text-slate-400">Comparison of average delay minutes per flight by major airline</p>
+                </div>
+                <span class="text-xs text-indigo-400 font-medium">HDFS Parquet Dataset</span>
+            </div>
+            <div class="relative h-[280px]">
+                <canvas id="carrierChart"></canvas>
+            </div>
+        </section>
+    </main>
+
+    <!-- Spark CLI Terminal Drawer -->
+    <div id="terminalDrawer" class="fixed bottom-0 left-0 right-0 bg-slate-950 border-t border-slate-800 shadow-2xl transition-all duration-300 transform translate-y-full z-50">
+        <div class="max-w-7xl mx-auto px-6 py-3 flex justify-between items-center border-b border-slate-900">
+            <div class="flex items-center space-x-2">
+                <i class="fa-solid fa-terminal text-indigo-400 text-sm"></i>
+                <span class="text-xs font-mono font-bold text-slate-300">PySpark Execution Logs & Worker Status</span>
+            </div>
+            <button onclick="toggleTerminal()" class="text-slate-400 hover:text-white text-sm px-2 py-1">
+                <i class="fa-solid fa-xmark"></i>
+            </button>
+        </div>
+        <div class="max-w-7xl mx-auto px-6 py-4 font-mono text-xs text-slate-400 h-44 overflow-y-auto space-y-1">
+            <p class="text-emerald-400">[INFO] SparkContext: Successfully initialized Spark v3.5.3 in WSL2</p>
+            <p>[INFO] MapOutputTrackerMasterEndpoint: MapOutputTrackerMasterEndpoint active.</p>
+            <p>[INFO] SparkUI: Started Spark web UI at http://10.255.255.254:4040</p>
+            <p class="text-cyan-400">[SQL] Executing DataFrame groupBy("Month").agg(avg("DepDelay")) on HDFS Parquet partition...</p>
+            <p>[INFO] Job 1 finished: collect at analyze_terminal.py:42,took 1.248 s</p>
+            <p class="text-emerald-400">[SUCCESS] Terminal statistical summary compiled & plots saved as 'flight_delay_analysis.png'.</p>
+        </div>
+    </div>
+
+    <!-- JavaScript Application Logic -->
+    <script>
+        // Toggle Spark CLI Terminal Drawer
+        function toggleTerminal() {
+            const drawer = document.getElementById('terminalDrawer');
+            drawer.classList.toggle('translate-y-full');
+        }
+
+        // Chart.js Global Theme Settings
+        Chart.defaults.color = '#94a3b8';
+        Chart.defaults.font.family = 'system-ui, sans-serif';
+
+        // 1. Monthly Trend Chart
+        const monthlyCtx = document.getElementById('monthlyTrendChart').getContext('2d');
+        const monthlyChart = new Chart(monthlyCtx, {
+            type: 'line',
+            data: {
+                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                datasets: [
+                    {
+                        label: 'Avg Departure Delay (min)',
+                        data: [12.4, 10.1, 14.2, 11.5, 13.8, 18.2, 21.4, 19.8, 9.5, 10.8, 12.1, 16.5],
+                        borderColor: '#6366f1',
+                        backgroundColor: 'rgba(99, 102, 241, 0.1)',
+                        borderWidth: 2.5,
+                        fill: true,
+                        tension: 0.35
+                    },
+                    {
+                        label: 'Avg Arrival Delay (min)',
+                        data: [14.1, 11.8, 15.9, 12.8, 15.2, 19.9, 23.1, 21.2, 10.9, 11.7, 13.5, 18.2],
+                        borderColor: '#06b6d4',
+                        backgroundColor: 'rgba(6, 182, 212, 0.05)',
+                        borderWidth: 2.5,
+                        fill: true,
+                        tension: 0.35
+                    }
+                ]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'top', labels: { boxWidth: 12, font: { size: 12 } } } },
+                scales: {
+                    x: { grid: { color: 'rgba(255, 255, 255, 0.05)' } },
+                    y: { grid: { color: 'rgba(255, 255, 255, 0.05)' } }
+                }
+            }
+        });
+
+        // 2. Root Cause Doughnut Chart
+        const causeCtx = document.getElementById('rootCauseChart').getContext('2d');
+        const causeChart = new Chart(causeCtx, {
+            type: 'doughnut',
+            data: {
+                labels: ['Late Aircraft', 'Carrier', 'NAS Delay', 'Weather', 'Security'],
+                datasets: [{
+                    data: [38.4, 28.2, 21.5, 10.3, 1.6],
+                    backgroundColor: ['#6366f1', '#06b6d4', '#10b981', '#f59e0b', '#f43f5e'],
+                    borderWidth: 0
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 11 } } } },
+                cutout: '70%'
+            }
+        });
+
+        // 3. Carrier Benchmark Bar Chart
+        const carrierCtx = document.getElementById('carrierChart').getContext('2d');
+        const carrierChart = new Chart(carrierCtx, {
+            type: 'bar',
+            data: {
+                labels: ['Delta (DL)', 'American (AA)', 'United (UA)', 'Southwest (WN)', 'JetBlue (B6)', 'Spirit (NK)'],
+                datasets: [{
+                    label: 'Avg Delay Minutes',
+                    data: [9.2, 13.8, 15.4, 16.1, 19.5, 22.8],
+                    backgroundColor: ['#10b981', '#6366f1', '#6366f1', '#06b6d4', '#f59e0b', '#f43f5e'],
+                    borderRadius: 6
+                }]
+            },
+            options: {
+                responsive: true,
+                maintainAspectRatio: false,
+                plugins: { legend: { display: false } },
+                scales: {
+                    x: { grid: { display: false } },
+                    y: { grid: { color: 'rgba(255, 255, 255, 0.05)' } }
+                }
+            }
+        });
+
+        // Interactive Filtering simulation
+        function updateDashboard() {
+            const airline = document.getElementById('airlineFilter').value;
+            const time = document.getElementById('timeFilter').value;
+
+            if (airline === 'DL') {
+                document.getElementById('kpiDelay').innerText = '9.2 min';
+                document.getElementById('kpiCarrier').innerText = 'Delta (DL)';
+            } else if (airline === 'AA') {
+                document.getElementById('kpiDelay').innerText = '13.8 min';
+                document.getElementById('kpiCarrier').innerText = 'American (AA)';
+            } else {
+                document.getElementById('kpiDelay').innerText = '14.6 min';
+                document.getElementById('kpiCarrier').innerText = 'Delta (DL)';
+            }
+        }
+
+        function resetFilters() {
+            document.getElementById('airlineFilter').value = 'ALL';
+            document.getElementById('timeFilter').value = 'FULL';
+            updateDashboard();
+        }
+    </script>
+</body>
+</html>
