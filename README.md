@@ -44,7 +44,7 @@ The repository tracks generated visual artifacts for immediate reporting:
 
 Execution Guide
 Step 1: Launch WSL and Start Hadoop HDFS
-Open your WSL/Ubuntu terminal and start your Hadoop Distributed File System services:
+Open your WSL/Ubuntu terminal ( window key +R) and start your Hadoop Distributed File System services:
 Bash
    start-dfs.sh
 Step 2: Verify Active Services
