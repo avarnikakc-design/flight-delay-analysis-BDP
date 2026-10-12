@@ -10,15 +10,21 @@
     <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
     <!-- FontAwesome Icons -->
     <link rel="stylesheet" href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.4.0/css/all.min.css">
+    <!-- Google Fonts - Professional Clean Sans-Serif -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Plus+Jakarta+Sans:wght@400;500;600;700&display=swap" rel="stylesheet">
+
     <style>
-        body { font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", Roboto, sans-serif; }
-        html { scroll-behavior: smooth; }
+        body { font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif; }
+        .dashboard-view { display: none; }
+        .dashboard-view.active { display: block; }
     </style>
 </head>
 <body class="bg-[#f8fafc] text-slate-800 antialiased min-h-screen flex">
 
     <!-- Sidebar Navigation -->
-    <aside class="w-64 bg-[#0a1128] text-slate-300 flex flex-col justify-between hidden md:flex sticky top-0 h-screen border-r border-slate-800">
+    <aside class="w-64 bg-[#0d1629] text-slate-300 flex flex-col justify-between hidden md:flex fixed top-0 left-0 h-screen border-r border-slate-800/80 z-50">
         <div>
             <!-- Sidebar Header -->
             <div class="px-6 py-6 border-b border-slate-800/80">
@@ -30,31 +36,31 @@
             </div>
 
             <!-- Navigation Links -->
-            <nav class="px-3 py-4 space-y-1">
-                <a href="#overview" class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl bg-indigo-600 text-white font-medium text-sm shadow-md">
-                    <i class="fa-solid fa-table-cells-large w-5"></i>
+            <nav class="px-3 py-5 space-y-1.5" id="sidebar-nav">
+                <button onclick="switchView('overview')" data-target="overview" class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl bg-slate-800/90 text-white font-medium text-sm shadow-sm border border-slate-700/50 transition">
+                    <i class="fa-solid fa-table-cells-large w-5 text-indigo-400"></i>
                     <span>Overview</span>
-                </a>
-                <a href="#airlines-table" class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white transition text-sm">
-                    <i class="fa-solid fa-plane w-5"></i>
+                </button>
+                <button onclick="switchView('airlines')" data-target="airlines" class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white transition text-sm">
+                    <i class="fa-solid fa-plane w-5 text-slate-400"></i>
                     <span>Airline Patterns</span>
-                </a>
-                <a href="#monthly-table" class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white transition text-sm">
-                    <i class="fa-solid fa-calendar-days w-5"></i>
+                </button>
+                <button onclick="switchView('monthly')" data-target="monthly" class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white transition text-sm">
+                    <i class="fa-solid fa-calendar-days w-5 text-slate-400"></i>
                     <span>Monthly Averages</span>
-                </a>
-                <a href="#weekly-table" class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white transition text-sm">
-                    <i class="fa-solid fa-calendar-week w-5"></i>
+                </button>
+                <button onclick="switchView('weekly')" data-target="weekly" class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white transition text-sm">
+                    <i class="fa-solid fa-calendar-week w-5 text-slate-400"></i>
                     <span>Day of Week</span>
-                </a>
-                <a href="#root-causes" class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white transition text-sm">
-                    <i class="fa-solid fa-triangle-exclamation w-5"></i>
+                </button>
+                <button onclick="switchView('root-causes')" data-target="root-causes" class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white transition text-sm">
+                    <i class="fa-solid fa-triangle-exclamation w-5 text-slate-400"></i>
                     <span>Root Causes</span>
-                </a>
-                <a href="#visualizations" class="flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white transition text-sm">
-                    <i class="fa-solid fa-chart-pie w-5"></i>
+                </button>
+                <button onclick="switchView('graphs')" data-target="graphs" class="w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white transition text-sm">
+                    <i class="fa-solid fa-chart-pie w-5 text-slate-400"></i>
                     <span>Interactive Graphs</span>
-                </a>
+                </button>
             </nav>
         </div>
 
@@ -71,215 +77,260 @@
     </aside>
 
     <!-- Main Content Area -->
-    <div class="flex-1 flex flex-col min-w-0 bg-[#f8fafc]">
+    <div class="flex-1 flex flex-col min-w-0 bg-[#f8fafc] ml-0 md:ml-64 min-h-screen">
 
-        <!-- Top Header Banner -->
-        <header class="bg-[#0a1128] text-white px-8 py-10 shadow-md">
+        <!-- Top Section Header Title Bar -->
+        <div class="bg-white border-b border-slate-200 px-8 py-5">
+            <div class="max-w-6xl mx-auto flex justify-between items-center">
+                <div>
+                    <h2 class="text-xl font-bold text-[#111827] tracking-tight">The Live Dashboard</h2>
+                    <div class="w-10 h-1 bg-amber-500 mt-1 rounded-full"></div>
+                </div>
+                <span id="current-view-badge" class="text-xs bg-indigo-50 text-indigo-700 px-3 py-1.5 rounded-full font-semibold">Active View: Overview</span>
+            </div>
+        </div>
+
+        <!-- Banner Header -->
+        <header class="bg-[#0a1128] text-white px-8 py-8 shadow-md">
             <div class="max-w-6xl mx-auto">
-                <span class="text-xs uppercase tracking-wider text-indigo-400 font-semibold">US Department of Transportation Dataset (5,819,079 Records)</span>
-                <h1 class="text-3xl font-bold tracking-tight mt-1">Flight Delay & Performance Analysis</h1>
-                <p class="text-sm text-slate-300 mt-2">End-to-end Big Data workflow analyzing departure/arrival delays, seasonal trends, and root causes across 31 attributes.</p>
+                <span class="text-xs font-semibold tracking-widest text-indigo-300 uppercase">US DEPARTMENT OF TRANSPORTATION DATASET (5,819,079 RECORDS)</span>
+                <h1 class="text-3xl font-bold tracking-tight mt-1 text-white">Flight Delay & Performance Analysis</h1>
+                <p class="text-sm text-slate-300 mt-2 max-w-3xl">Departure, arrival performance, seasonal delay patterns, and root causes across 5.8M sampled flights processed via Hadoop HDFS & PySpark.</p>
             </div>
         </header>
 
-        <!-- Content Body -->
-        <main class="flex-1 max-w-6xl w-full mx-auto px-8 py-8 space-y-8">
+        <!-- Content Body (Dynamic Views) -->
+        <main class="flex-1 max-w-6xl w-full mx-auto px-8 py-8">
 
-            <!-- Overview Section -->
-            <section id="overview" class="space-y-4">
+            <!-- VIEW 1: OVERVIEW -->
+            <div id="view-overview" class="dashboard-view active space-y-6">
                 <div>
-                    <h2 class="text-xl font-bold text-slate-900">Overview</h2>
-                    <p class="text-xs text-slate-500">Headline numbers and core schema metrics extracted directly from PySpark terminal execution logs.</p>
+                    <h3 class="text-xl font-bold text-slate-900">Overview</h3>
+                    <p class="text-xs text-slate-500">Headline numbers and core relationships extracted directly from PySpark terminal outputs.</p>
                 </div>
 
-                <!-- KPI Cards Grid -->
+                <!-- KPI Cards Row -->
                 <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-4">
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between">
                         <div>
-                            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Total Records</p>
-                            <h3 class="text-xl font-bold text-slate-900 mt-2">5,819,079</h3>
+                            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Records Analyzed</p>
+                            <h4 class="text-2xl font-bold text-slate-900 mt-1.5">5,819,079</h4>
                         </div>
-                        <span class="text-[11px] text-emerald-600 font-medium mt-3 flex items-center">
-                            <i class="fa-solid fa-check-circle mr-1"></i> HDFS Parquet
-                        </span>
+                        <p class="text-[11px] text-slate-500 font-medium mt-3">Full Parquet Dataset in HDFS</p>
                     </div>
 
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between">
                         <div>
-                            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Schema Columns</p>
-                            <h3 class="text-xl font-bold text-slate-900 mt-2">31 Attributes</h3>
+                            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Avg Dep Delay, NK</p>
+                            <h4 class="text-2xl font-bold text-indigo-600 mt-1.5">15.94 min</h4>
                         </div>
-                        <span class="text-[11px] text-indigo-600 font-medium mt-3 flex items-center">
-                            <i class="fa-solid fa-table-columns mr-1"></i> DataFrame Schema
-                        </span>
+                        <p class="text-[11px] text-slate-500 font-medium mt-3"><span class="font-bold text-slate-700">1.5×</span> Southwest (WN) delay</p>
                     </div>
 
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between">
                         <div>
-                            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Unique Airlines</p>
-                            <h3 class="text-xl font-bold text-slate-900 mt-2">14 Carriers</h3>
+                            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Peak Month Delay</p>
+                            <h4 class="text-2xl font-bold text-amber-600 mt-1.5">13.99 min</h4>
                         </div>
-                        <span class="text-[11px] text-cyan-600 font-medium mt-3 flex items-center">
-                            <i class="fa-solid fa-plane mr-1"></i> Major Carriers
-                        </span>
+                        <p class="text-[11px] text-slate-500 font-medium mt-3"><span class="font-bold text-slate-700">June</span> summer travel peak</p>
                     </div>
 
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between">
                         <div>
-                            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Airports</p>
-                            <h3 class="text-xl font-bold text-slate-900 mt-2">628 / 629</h3>
+                            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Highest Delay Cause</p>
+                            <h4 class="text-2xl font-bold text-purple-600 mt-1.5">23.47 min</h4>
                         </div>
-                        <span class="text-[11px] text-purple-600 font-medium mt-3">Origin / Dest Hubs</span>
+                        <p class="text-[11px] text-slate-500 font-medium mt-3"><span class="font-bold text-slate-700">Late Aircraft</span> propagation</p>
                     </div>
 
-                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200 flex flex-col justify-between">
+                    <div class="bg-white p-5 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col justify-between">
                         <div>
-                            <p class="text-[11px] font-bold text-slate-400 uppercase tracking-wide">Top Delay Cause</p>
-                            <h3 class="text-xl font-bold text-slate-900 mt-2">Late Aircraft</h3>
+                            <p class="text-[11px] font-semibold text-slate-400 uppercase tracking-wide">Busiest Day</p>
+                            <h4 class="text-2xl font-bold text-slate-900 mt-1.5">872,521</h4>
                         </div>
-                        <span class="text-[11px] text-amber-600 font-medium mt-3 flex items-center">
-                            <i class="fa-solid fa-bolt mr-1"></i> Avg 23.47 min
-                        </span>
+                        <p class="text-[11px] text-slate-500 font-medium mt-3"><span class="font-bold text-slate-700">Thursday</span> total flights</p>
                     </div>
                 </div>
-            </section>
 
-            <!-- Table 1: Airline Delay Patterns -->
-            <section id="airlines-table" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                    <h3 class="text-sm font-bold text-slate-900"><i class="fa-solid fa-plane-departure text-indigo-600 mr-2"></i>1. Delay Patterns Across Airlines (Departure & Arrival Averages)</h3>
-                    <span class="text-xs bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full font-medium">Spark Terminal Output</span>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs text-slate-700">
-                        <thead class="bg-slate-100/80 text-slate-800 uppercase font-semibold border-b border-slate-200">
-                            <tr>
-                                <th class="px-5 py-3">Airline</th>
-                                <th class="px-5 py-3">Total Flights</th>
-                                <th class="px-5 py-3">Min Dep Delay</th>
-                                <th class="px-5 py-3">Avg Dep Delay</th>
-                                <th class="px-5 py-3">Max Dep Delay</th>
-                                <th class="px-5 py-3">Min Arr Delay</th>
-                                <th class="px-5 py-3">Avg Arr Delay</th>
-                                <th class="px-5 py-3">Max Arr Delay</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 font-mono">
-                            <tr class="hover:bg-slate-50"><td class="px-5 py-3 font-bold text-slate-900">NK</td><td class="px-5 py-3">117,379</td><td class="px-5 py-3">-37</td><td class="px-5 py-3 text-indigo-600 font-semibold">15.94</td><td class="px-5 py-3">836</td><td class="px-5 py-3">-60</td><td class="px-5 py-3 text-cyan-600 font-semibold">14.47</td><td class="px-5 py-3">833</td></tr>
-                            <tr class="hover:bg-slate-50"><td class="px-5 py-3 font-bold text-slate-900">UA</td><td class="px-5 py-3">515,723</td><td class="px-5 py-3">-40</td><td class="px-5 py-3 text-indigo-600 font-semibold">14.44</td><td class="px-5 py-3">1,314</td><td class="px-5 py-3">-81</td><td class="px-5 py-3 text-cyan-600 font-semibold">5.43</td><td class="px-5 py-3">1,294</td></tr>
-                            <tr class="hover:bg-slate-50"><td class="px-5 py-3 font-bold text-slate-900">F9</td><td class="px-5 py-3">90,836</td><td class="px-5 py-3">-46</td><td class="px-5 py-3 text-indigo-600 font-semibold">13.35</td><td class="px-5 py-3">1,112</td><td class="px-5 py-3">-73</td><td class="px-5 py-3 text-cyan-600 font-semibold">12.50</td><td class="px-5 py-3">1,101</td></tr>
-                            <tr class="hover:bg-slate-50"><td class="px-5 py-3 font-bold text-slate-900">B6</td><td class="px-5 py-3">267,048</td><td class="px-5 py-3">-31</td><td class="px-5 py-3 text-indigo-600 font-semibold">11.51</td><td class="px-5 py-3">1,006</td><td class="px-5 py-3">-76</td><td class="px-5 py-3 text-cyan-600 font-semibold">6.68</td><td class="px-5 py-3">1,002</td></tr>
-                            <tr class="hover:bg-slate-50"><td class="px-5 py-3 font-bold text-slate-900">WN</td><td class="px-5 py-3">1,261,855</td><td class="px-5 py-3">-28</td><td class="px-5 py-3 text-indigo-600 font-semibold">10.58</td><td class="px-5 py-3">665</td><td class="px-5 py-3">-73</td><td class="px-5 py-3 text-cyan-600 font-semibold">4.37</td><td class="px-5 py-3">659</td></tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-            <!-- Table 4: Root Causes Breakdown -->
-            <section id="root-causes" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden">
-                <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
-                    <h3 class="text-sm font-bold text-slate-900"><i class="fa-solid fa-triangle-exclamation text-amber-500 mr-2"></i>4. Major Causes of Flight Delays (Root Causes Averages in Minutes)</h3>
-                    <span class="text-xs bg-amber-50 text-amber-700 px-3 py-1 rounded-full font-medium">Spark Terminal Output</span>
-                </div>
-                <div class="overflow-x-auto">
-                    <table class="w-full text-left text-xs text-slate-700">
-                        <thead class="bg-slate-100/80 text-slate-800 uppercase font-semibold border-b border-slate-200">
-                            <tr>
-                                <th class="px-6 py-3">Air System Delay</th>
-                                <th class="px-6 py-3">Security Delay</th>
-                                <th class="px-6 py-3">Airline Delay</th>
-                                <th class="px-6 py-3">Late Aircraft Delay</th>
-                                <th class="px-6 py-3">Weather Delay</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 font-mono">
-                            <tr class="hover:bg-slate-50">
-                                <td class="px-6 py-4 font-bold text-slate-900">13.48 min</td>
-                                <td class="px-6 py-4 text-slate-600">0.08 min</td>
-                                <td class="px-6 py-4 text-indigo-600 font-semibold">18.97 min</td>
-                                <td class="px-6 py-4 text-purple-600 font-bold text-sm">23.47 min</td>
-                                <td class="px-6 py-4 text-amber-600 font-semibold">2.92 min</td>
-                            </tr>
-                        </tbody>
-                    </table>
-                </div>
-            </section>
-
-            <!-- Grid Tables 2 & 3: Monthly & Day of Week -->
-            <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                <!-- Monthly Table -->
-                <section id="monthly-table" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
-                    <div class="px-5 py-4 border-b border-slate-100 bg-slate-50/50">
-                        <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wide"><i class="fa-solid fa-calendar-days text-indigo-600 mr-2"></i>2. Average Delays by Month</h3>
+                <!-- Key Findings Box -->
+                <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80">
+                    <h4 class="text-sm font-bold text-slate-900 uppercase tracking-wider mb-3"><i class="fa-solid fa-lightbulb text-amber-500 mr-2"></i>Key Pipeline Insights</h4>
+                    <div class="grid grid-cols-1 md:grid-cols-3 gap-4 text-xs text-slate-600">
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="font-bold text-slate-800 block mb-1">1. Late Aircraft Domino Effect</span>
+                            Late aircraft accounts for 23.47 mins average delay, representing the largest single contributor to flight disruptions.
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="font-bold text-slate-800 block mb-1">2. Seasonal Summer Surges</span>
+                            June experiences the highest average departure delay (13.99 mins), whereas September and October demonstrate negative arrival delay baselines.
+                        </div>
+                        <div class="p-3 bg-slate-50 rounded-xl border border-slate-100">
+                            <span class="font-bold text-slate-800 block mb-1">3. Monday Morning Commute</span>
+                            Mondays register the highest weekly departure delay average (10.87 mins), while Saturdays record the lowest (7.83 mins).
+                        </div>
                     </div>
-                    <div class="overflow-x-auto flex-1 max-h-72 overflow-y-auto">
-                        <table class="w-full text-left text-xs text-slate-700">
-                            <thead class="bg-slate-100/80 text-slate-800 uppercase font-semibold border-b border-slate-200 sticky top-0">
-                                <tr>
-                                    <th class="px-3.5 py-2.5">Month</th>
-                                    <th class="px-3.5 py-2.5">Total Flights</th>
-                                    <th class="px-3.5 py-2.5">Avg Dep (min)</th>
-                                    <th class="px-3.5 py-2.5">Avg Arr (min)</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100 font-mono">
-                                <tr><td class="px-3.5 py-2 font-bold">Jan (1)</td><td class="px-3.5 py-2">469,968</td><td class="px-3.5 py-2 text-indigo-600 font-semibold">9.76</td><td class="px-3.5 py-2">5.81</td></tr>
-                                <tr><td class="px-3.5 py-2 font-bold">Feb (2)</td><td class="px-3.5 py-2">429,191</td><td class="px-3.5 py-2 text-indigo-600 font-semibold">11.89</td><td class="px-3.5 py-2">8.32</td></tr>
-                                <tr><td class="px-3.5 py-2 font-bold">Mar (3)</td><td class="px-3.5 py-2">504,312</td><td class="px-3.5 py-2 text-indigo-600 font-semibold">9.66</td><td class="px-3.5 py-2">4.92</td></tr>
-                                <tr><td class="px-3.5 py-2 font-bold">Apr (4)</td><td class="px-3.5 py-2">485,151</td><td class="px-3.5 py-2 text-indigo-600 font-semibold">7.72</td><td class="px-3.5 py-2">3.16</td></tr>
-                                <tr><td class="px-3.5 py-2 font-bold">May (5)</td><td class="px-3.5 py-2">496,993</td><td class="px-3.5 py-2 text-indigo-600 font-semibold">9.45</td><td class="px-3.5 py-2">4.49</td></tr>
-                                <tr><td class="px-3.5 py-2 font-bold">Jun (6)</td><td class="px-3.5 py-2">503,897</td><td class="px-3.5 py-2 text-indigo-600 font-semibold">13.99</td><td class="px-3.5 py-2 text-amber-600">9.60</td></tr>
-                                <tr><td class="px-3.5 py-2 font-bold">Jul (7)</td><td class="px-3.5 py-2">520,718</td><td class="px-3.5 py-2 text-indigo-600 font-bold">11.39</td><td class="px-3.5 py-2 text-amber-600 font-bold">6.43</td></tr>
-                                <tr><td class="px-3.5 py-2 font-bold">Aug (8)</td><td class="px-3.5 py-2">510,536</td><td class="px-3.5 py-2 text-indigo-600 font-semibold">9.93</td><td class="px-3.5 py-2">4.61</td></tr>
-                                <tr><td class="px-3.5 py-2 font-bold">Sep (9)</td><td class="px-3.5 py-2">464,946</td><td class="px-3.5 py-2 text-indigo-600 font-semibold">4.82</td><td class="px-3.5 py-2">-0.77</td></tr>
-                                <tr><td class="px-3.5 py-2 font-bold">Oct (10)</td><td class="px-3.5 py-2">486,165</td><td class="px-3.5 py-2 text-indigo-600 font-semibold">4.98</td><td class="px-3.5 py-2">-0.78</td></tr>
-                                <tr><td class="px-3.5 py-2 font-bold">Nov (11)</td><td class="px-3.5 py-2">467,972</td><td class="px-3.5 py-2 text-indigo-600 font-semibold">6.94</td><td class="px-3.5 py-2">1.10</td></tr>
-                                <tr><td class="px-3.5 py-2 font-bold">Dec (12)</td><td class="px-3.5 py-2">479,230</td><td class="px-3.5 py-2 text-indigo-600 font-semibold">11.78</td><td class="px-3.5 py-2">6.09</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
-
-                <!-- Day of Week Table -->
-                <section id="weekly-table" class="bg-white rounded-2xl shadow-sm border border-slate-200 overflow-hidden flex flex-col">
-                    <div class="px-5 py-4 border-b border-slate-100 bg-slate-50/50">
-                        <h3 class="text-xs font-bold text-slate-900 uppercase tracking-wide"><i class="fa-solid fa-calendar-week text-indigo-600 mr-2"></i>3. Average Delays by Day of Week</h3>
-                    </div>
-                    <div class="overflow-x-auto flex-1 max-h-72 overflow-y-auto">
-                        <table class="w-full text-left text-xs text-slate-700">
-                            <thead class="bg-slate-100/80 text-slate-800 uppercase font-semibold border-b border-slate-200 sticky top-0">
-                                <tr>
-                                    <th class="px-3.5 py-2.5">Day</th>
-                                    <th class="px-3.5 py-2.5">Total Flights</th>
-                                    <th class="px-3.5 py-2.5">Avg Dep (min)</th>
-                                    <th class="px-3.5 py-2.5">Avg Arr (min)</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100 font-mono">
-                                <tr><td class="px-3.5 py-2 font-bold">Mon (1)</td><td class="px-3.5 py-2">865,543</td><td class="px-3.5 py-2 text-indigo-600 font-bold">10.87</td><td class="px-3.5 py-2">6.00</td></tr>
-                                <tr><td class="px-3.5 py-2 font-bold">Tue (2)</td><td class="px-3.5 py-2">844,600</td><td class="px-3.5 py-2 text-indigo-600 font-semibold">9.16</td><td class="px-3.5 py-2">4.25</td></tr>
-                                <tr><td class="px-3.5 py-2 font-bold">Wed (3)</td><td class="px-3.5 py-2">855,897</td><td class="px-3.5 py-2 text-indigo-600 font-semibold">8.65</td><td class="px-3.5 py-2">3.85</td></tr>
-                                <tr><td class="px-3.5 py-2 font-bold">Thu (4)</td><td class="px-3.5 py-2">872,521</td><td class="px-3.5 py-2 text-indigo-600 font-semibold">9.96</td><td class="px-3.5 py-2">5.67</td></tr>
-                                <tr><td class="px-3.5 py-2 font-bold">Fri (5)</td><td class="px-3.5 py-2">862,209</td><td class="px-3.5 py-2 text-indigo-600 font-semibold">9.43</td><td class="px-3.5 py-2">4.76</td></tr>
-                                <tr><td class="px-3.5 py-2 font-bold">Sat (6)</td><td class="px-3.5 py-2">700,545</td><td class="px-3.5 py-2 text-indigo-600 font-semibold">7.83</td><td class="px-3.5 py-2">1.85</td></tr>
-                                <tr><td class="px-3.5 py-2 font-bold">Sun (7)</td><td class="px-3.5 py-2">817,764</td><td class="px-3.5 py-2 text-indigo-600 font-semibold">9.40</td><td class="px-3.5 py-2">3.96</td></tr>
-                            </tbody>
-                        </table>
-                    </div>
-                </section>
+                </div>
             </div>
 
-            <!-- Interactive Graphs Section -->
-            <section id="visualizations" class="space-y-6">
+            <!-- VIEW 2: AIRLINE PATTERNS -->
+            <div id="view-airlines" class="dashboard-view space-y-6">
                 <div>
-                    <h2 class="text-xl font-bold text-slate-900">Interactive Pipeline Analytics Graphs</h2>
-                    <p class="text-xs text-slate-500">Rendered from your Spark terminal outputs (Airlines, Monthly, Day of Week, and Root Causes).</p>
+                    <h3 class="text-xl font-bold text-slate-900">1. Delay Patterns Across Airlines</h3>
+                    <p class="text-xs text-slate-500">Departure & Arrival averages alongside Min/Max baselines extracted from Spark terminal.</p>
+                </div>
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                        <h4 class="text-sm font-bold text-slate-900"><i class="fa-solid fa-plane-departure text-indigo-600 mr-2"></i>Carrier Performance Metrics</h4>
+                        <span class="text-xs bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full font-medium">Spark Terminal Output</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-700">
+                            <thead class="bg-slate-100/80 text-slate-800 uppercase font-semibold border-b border-slate-200">
+                                <tr>
+                                    <th class="px-6 py-3.5">Airline</th>
+                                    <th class="px-6 py-3.5">Total Flights</th>
+                                    <th class="px-6 py-3.5">Min Dep Delay</th>
+                                    <th class="px-6 py-3.5">Avg Dep Delay</th>
+                                    <th class="px-6 py-3.5">Max Dep Delay</th>
+                                    <th class="px-6 py-3.5">Min Arr Delay</th>
+                                    <th class="px-6 py-3.5">Avg Arr Delay</th>
+                                    <th class="px-6 py-3.5">Max Arr Delay</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 font-mono">
+                                <tr class="hover:bg-slate-50"><td class="px-6 py-3.5 font-bold text-slate-900">NK</td><td class="px-6 py-3.5">117,379</td><td class="px-6 py-3.5">-37</td><td class="px-6 py-3.5 text-indigo-600 font-semibold">15.94</td><td class="px-6 py-3.5">836</td><td class="px-6 py-3.5">-60</td><td class="px-6 py-3.5 text-cyan-600 font-semibold">14.47</td><td class="px-6 py-3.5">833</td></tr>
+                                <tr class="hover:bg-slate-50"><td class="px-6 py-3.5 font-bold text-slate-900">UA</td><td class="px-6 py-3.5">515,723</td><td class="px-6 py-3.5">-40</td><td class="px-6 py-3.5 text-indigo-600 font-semibold">14.44</td><td class="px-6 py-3.5">1,314</td><td class="px-6 py-3.5">-81</td><td class="px-6 py-3.5 text-cyan-600 font-semibold">5.43</td><td class="px-6 py-3.5">1,294</td></tr>
+                                <tr class="hover:bg-slate-50"><td class="px-6 py-3.5 font-bold text-slate-900">F9</td><td class="px-6 py-3.5">90,836</td><td class="px-6 py-3.5">-46</td><td class="px-6 py-3.5 text-indigo-600 font-semibold">13.35</td><td class="px-6 py-3.5">1,112</td><td class="px-6 py-3.5">-73</td><td class="px-6 py-3.5 text-cyan-600 font-semibold">12.50</td><td class="px-6 py-3.5">1,101</td></tr>
+                                <tr class="hover:bg-slate-50"><td class="px-6 py-3.5 font-bold text-slate-900">B6</td><td class="px-6 py-3.5">267,048</td><td class="px-6 py-3.5">-31</td><td class="px-6 py-3.5 text-indigo-600 font-semibold">11.51</td><td class="px-6 py-3.5">1,006</td><td class="px-6 py-3.5">-76</td><td class="px-6 py-3.5 text-cyan-600 font-semibold">6.68</td><td class="px-6 py-3.5">1,002</td></tr>
+                                <tr class="hover:bg-slate-50"><td class="px-6 py-3.5 font-bold text-slate-900">WN</td><td class="px-6 py-3.5">1,261,855</td><td class="px-6 py-3.5">-28</td><td class="px-6 py-3.5 text-indigo-600 font-semibold">10.58</td><td class="px-6 py-3.5">665</td><td class="px-6 py-3.5">-73</td><td class="px-6 py-3.5 text-cyan-600 font-semibold">4.37</td><td class="px-6 py-3.5">659</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 3: MONTHLY AVERAGES -->
+            <div id="view-monthly" class="dashboard-view space-y-6">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-900">2. Average Delays by Month</h3>
+                    <p class="text-xs text-slate-500">Seasonal performance metrics across all 12 months.</p>
+                </div>
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                        <h4 class="text-sm font-bold text-slate-900"><i class="fa-solid fa-calendar-days text-indigo-600 mr-2"></i>Monthly Breakdown</h4>
+                        <span class="text-xs bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full font-medium">Spark Terminal Output</span>
+                    </div>
+                    <div class="overflow-x-auto max-h-[450px] overflow-y-auto">
+                        <table class="w-full text-left text-xs text-slate-700">
+                            <thead class="bg-slate-100/80 text-slate-800 uppercase font-semibold border-b border-slate-200 sticky top-0">
+                                <tr>
+                                    <th class="px-6 py-3.5">Month</th>
+                                    <th class="px-6 py-3.5">Total Flights</th>
+                                    <th class="px-6 py-3.5">Avg Dep (min)</th>
+                                    <th class="px-6 py-3.5">Avg Arr (min)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 font-mono">
+                                <tr><td class="px-6 py-3 font-bold">Jan (1)</td><td class="px-6 py-3">469,968</td><td class="px-6 py-3 text-indigo-600 font-semibold">9.76</td><td class="px-6 py-3">5.81</td></tr>
+                                <tr><td class="px-6 py-3 font-bold">Feb (2)</td><td class="px-6 py-3">429,191</td><td class="px-6 py-3 text-indigo-600 font-semibold">11.89</td><td class="px-6 py-3">8.32</td></tr>
+                                <tr><td class="px-6 py-3 font-bold">Mar (3)</td><td class="px-6 py-3">504,312</td><td class="px-6 py-3 text-indigo-600 font-semibold">9.66</td><td class="px-6 py-3">4.92</td></tr>
+                                <tr><td class="px-6 py-3 font-bold">Apr (4)</td><td class="px-6 py-3">485,151</td><td class="px-6 py-3 text-indigo-600 font-semibold">7.72</td><td class="px-6 py-3">3.16</td></tr>
+                                <tr><td class="px-6 py-3 font-bold">May (5)</td><td class="px-6 py-3">496,993</td><td class="px-6 py-3 text-indigo-600 font-semibold">9.45</td><td class="px-6 py-3">4.49</td></tr>
+                                <tr><td class="px-6 py-3 font-bold">Jun (6)</td><td class="px-6 py-3">503,897</td><td class="px-6 py-3 text-indigo-600 font-semibold">13.99</td><td class="px-6 py-3 text-amber-600">9.60</td></tr>
+                                <tr><td class="px-6 py-3 font-bold">Jul (7)</td><td class="px-6 py-3">520,718</td><td class="px-6 py-3 text-indigo-600 font-bold">11.39</td><td class="px-6 py-3 text-amber-600 font-bold">6.43</td></tr>
+                                <tr><td class="px-6 py-3 font-bold">Aug (8)</td><td class="px-6 py-3">510,536</td><td class="px-6 py-3 text-indigo-600 font-semibold">9.93</td><td class="px-6 py-3">4.61</td></tr>
+                                <tr><td class="px-6 py-3 font-bold">Sep (9)</td><td class="px-6 py-3">464,946</td><td class="px-6 py-3 text-indigo-600 font-semibold">4.82</td><td class="px-6 py-3">-0.77</td></tr>
+                                <tr><td class="px-6 py-3 font-bold">Oct (10)</td><td class="px-6 py-3">486,165</td><td class="px-6 py-3 text-indigo-600 font-semibold">4.98</td><td class="px-6 py-3">-0.78</td></tr>
+                                <tr><td class="px-6 py-3 font-bold">Nov (11)</td><td class="px-6 py-3">467,972</td><td class="px-6 py-3 text-indigo-600 font-semibold">6.94</td><td class="px-6 py-3">1.10</td></tr>
+                                <tr><td class="px-6 py-3 font-bold">Dec (12)</td><td class="px-6 py-3">479,230</td><td class="px-6 py-3 text-indigo-600 font-semibold">11.78</td><td class="px-6 py-3">6.09</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 4: DAY OF WEEK -->
+            <div id="view-weekly" class="dashboard-view space-y-6">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-900">3. Average Delays by Day of Week</h3>
+                    <p class="text-xs text-slate-500">Weekly traffic volume and delay averages from Monday through Sunday.</p>
+                </div>
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                        <h4 class="text-sm font-bold text-slate-900"><i class="fa-solid fa-calendar-week text-indigo-600 mr-2"></i>Day of Week Metrics</h4>
+                        <span class="text-xs bg-indigo-50 text-indigo-700 px-3 py-1 rounded-full font-medium">Spark Terminal Output</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-700">
+                            <thead class="bg-slate-100/80 text-slate-800 uppercase font-semibold border-b border-slate-200">
+                                <tr>
+                                    <th class="px-6 py-3.5">Day</th>
+                                    <th class="px-6 py-3.5">Total Flights</th>
+                                    <th class="px-6 py-3.5">Avg Dep (min)</th>
+                                    <th class="px-6 py-3.5">Avg Arr (min)</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 font-mono">
+                                <tr><td class="px-6 py-3.5 font-bold">Mon (1)</td><td class="px-6 py-3.5">865,543</td><td class="px-6 py-3.5 text-indigo-600 font-bold">10.87</td><td class="px-6 py-3.5">6.00</td></tr>
+                                <tr><td class="px-6 py-3.5 font-bold">Tue (2)</td><td class="px-6 py-3.5">844,600</td><td class="px-6 py-3.5 text-indigo-600 font-semibold">9.16</td><td class="px-6 py-3.5">4.25</td></tr>
+                                <tr><td class="px-6 py-3.5 font-bold">Wed (3)</td><td class="px-6 py-3.5">855,897</td><td class="px-6 py-3.5 text-indigo-600 font-semibold">8.65</td><td class="px-6 py-3.5">3.85</td></tr>
+                                <tr><td class="px-6 py-3.5 font-bold">Thu (4)</td><td class="px-6 py-3.5">872,521</td><td class="px-6 py-3.5 text-indigo-600 font-semibold">9.96</td><td class="px-6 py-3.5">5.67</td></tr>
+                                <tr><td class="px-6 py-3.5 font-bold">Fri (5)</td><td class="px-6 py-3.5">862,209</td><td class="px-6 py-3.5 text-indigo-600 font-semibold">9.43</td><td class="px-6 py-3.5">4.76</td></tr>
+                                <tr><td class="px-6 py-3.5 font-bold">Sat (6)</td><td class="px-6 py-3.5">700,545</td><td class="px-6 py-3.5 text-indigo-600 font-semibold">7.83</td><td class="px-6 py-3.5">1.85</td></tr>
+                                <tr><td class="px-6 py-3.5 font-bold">Sun (7)</td><td class="px-6 py-3.5">817,764</td><td class="px-6 py-3.5 text-indigo-600 font-semibold">9.40</td><td class="px-6 py-3.5">3.96</td></tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 5: ROOT CAUSES -->
+            <div id="view-root-causes" class="dashboard-view space-y-6">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-900">4. Major Causes of Flight Delays (Root Causes)</h3>
+                    <p class="text-xs text-slate-500">Average delay minutes attributed to specific operational factors.</p>
+                </div>
+                <div class="bg-white rounded-2xl shadow-sm border border-slate-200/80 overflow-hidden">
+                    <div class="px-6 py-4 border-b border-slate-100 flex justify-between items-center bg-slate-50/50">
+                        <h4 class="text-sm font-bold text-slate-900"><i class="fa-solid fa-triangle-exclamation text-amber-500 mr-2"></i>Root Cause Averages (Minutes)</h4>
+                        <span class="text-xs bg-amber-50 text-amber-700 px-3 py-1 rounded-full font-medium">Spark Terminal Output</span>
+                    </div>
+                    <div class="overflow-x-auto">
+                        <table class="w-full text-left text-xs text-slate-700">
+                            <thead class="bg-slate-100/80 text-slate-800 uppercase font-semibold border-b border-slate-200">
+                                <tr>
+                                    <th class="px-6 py-3.5">Air System Delay</th>
+                                    <th class="px-6 py-3.5">Security Delay</th>
+                                    <th class="px-6 py-3.5">Airline Delay</th>
+                                    <th class="px-6 py-3.5">Late Aircraft Delay</th>
+                                    <th class="px-6 py-3.5">Weather Delay</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 font-mono">
+                                <tr class="hover:bg-slate-50">
+                                    <td class="px-6 py-4 font-bold text-slate-900">13.48 min</td>
+                                    <td class="px-6 py-4 text-slate-600">0.08 min</td>
+                                    <td class="px-6 py-4 text-indigo-600 font-semibold">18.97 min</td>
+                                    <td class="px-6 py-4 text-purple-600 font-bold text-sm">23.47 min</td>
+                                    <td class="px-6 py-4 text-amber-600 font-semibold">2.92 min</td>
+                                </tr>
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- VIEW 6: INTERACTIVE GRAPHS -->
+            <div id="view-graphs" class="dashboard-view space-y-6">
+                <div>
+                    <h3 class="text-xl font-bold text-slate-900">Interactive Pipeline Analytics Graphs</h3>
+                    <p class="text-xs text-slate-500">Rendered directly from PySpark terminal outputs (Airlines, Monthly, Day of Week, and Root Causes).</p>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
                     <!-- Graph 1: Airline Patterns -->
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
-                        <h3 class="text-sm font-bold text-slate-900 mb-1">1. Delay Patterns Across Airlines</h3>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col">
+                        <h4 class="text-sm font-bold text-slate-900 mb-1">1. Delay Patterns Across Airlines</h4>
                         <p class="text-xs text-slate-500 mb-4">Average Departure vs Arrival Delay (Minutes)</p>
                         <div class="flex-1 relative min-h-[280px]">
                             <canvas id="airlineChart"></canvas>
@@ -287,8 +338,8 @@
                     </div>
 
                     <!-- Graph 2: Monthly Trends -->
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
-                        <h3 class="text-sm font-bold text-slate-900 mb-1">2. Average Delays by Month</h3>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col">
+                        <h4 class="text-sm font-bold text-slate-900 mb-1">2. Average Delays by Month</h4>
                         <p class="text-xs text-slate-500 mb-4">Seasonal progression across months</p>
                         <div class="flex-1 relative min-h-[280px]">
                             <canvas id="monthlyChart"></canvas>
@@ -296,8 +347,8 @@
                     </div>
 
                     <!-- Graph 3: Day of Week -->
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
-                        <h3 class="text-sm font-bold text-slate-900 mb-1">3. Average Delays by Day of Week</h3>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col">
+                        <h4 class="text-sm font-bold text-slate-900 mb-1">3. Average Delays by Day of Week</h4>
                         <p class="text-xs text-slate-500 mb-4">Departure vs Arrival averages by day</p>
                         <div class="flex-1 relative min-h-[280px]">
                             <canvas id="weeklyChart"></canvas>
@@ -305,132 +356,102 @@
                     </div>
 
                     <!-- Graph 4: Root Causes Donut -->
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200 flex flex-col">
-                        <h3 class="text-sm font-bold text-slate-900 mb-1">4. Major Causes of Flight Delays (Root Causes)</h3>
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col">
+                        <h4 class="text-sm font-bold text-slate-900 mb-1">4. Major Causes of Flight Delays (Root Causes)</h4>
                         <p class="text-xs text-slate-500 mb-4">Proportional breakdown of delay factors (Minutes)</p>
                         <div class="flex-1 relative min-h-[280px] flex items-center justify-center">
                             <canvas id="rootCauseDonut"></canvas>
                         </div>
                     </div>
                 </div>
-            </section>
+            </div>
+
         </main>
 
         <!-- Footer -->
-        <footer class="bg-white border-t border-slate-200 py-6 px-8 text-center text-xs text-slate-500">
+        <footer class="bg-white border-t border-slate-200 py-6 px-8 text-center text-xs text-slate-500 mt-auto">
             <p>Hadoop HDFS & PySpark Flight Delay Pipeline — Hosted via GitHub Pages</p>
         </footer>
     </div>
 
-    <!-- Chart.js Graph Rendering Script -->
+    <!-- Script for Tab Switching and Chart.js Rendering -->
     <script>
-        // 1. Airline Patterns Bar Chart
-        new Chart(document.getElementById('airlineChart').getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: ['NK', 'UA', 'F9', 'B6', 'WN'],
-                datasets: [
-                    {
-                        label: 'Avg Dep Delay',
-                        data: [15.94, 14.44, 13.35, 11.51, 10.58],
-                        backgroundColor: '#4f46e5',
-                        borderRadius: 4
-                    },
-                    {
-                        label: 'Avg Arr Delay',
-                        data: [14.47, 5.43, 12.50, 6.68, 4.37],
-                        backgroundColor: '#06b6d4',
-                        borderRadius: 4
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'top', labels: { boxWidth: 10, font: { size: 10 } } } },
-                scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(0, 0, 0, 0.03)' } } }
-            }
-        });
+        function switchView(viewId) {
+            document.querySelectorAll('.dashboard-view').forEach(el => {
+                el.classList.remove('active');
+            });
+            document.getElementById('view-' + viewId).classList.add('active');
 
-        // 2. Monthly Averages Line Chart
-        new Chart(document.getElementById('monthlyChart').getContext('2d'), {
-            type: 'line',
-            data: {
-                labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
-                datasets: [
-                    {
-                        label: 'Avg Dep Delay',
-                        data: [9.76, 11.89, 9.66, 7.72, 9.45, 13.99, 11.39, 9.93, 4.82, 4.98, 6.94, 11.78],
-                        borderColor: '#4f46e5',
-                        backgroundColor: 'rgba(79, 70, 229, 0.05)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.3
-                    },
-                    {
-                        label: 'Avg Arr Delay',
-                        data: [5.81, 8.32, 4.92, 3.16, 4.49, 9.60, 6.43, 4.61, -0.77, -0.78, 1.10, 6.09],
-                        borderColor: '#06b6d4',
-                        backgroundColor: 'rgba(6, 182, 212, 0.03)',
-                        borderWidth: 2,
-                        fill: true,
-                        tension: 0.3
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'top', labels: { boxWidth: 10, font: { size: 10 } } } },
-                scales: { x: { grid: { color: 'rgba(0, 0, 0, 0.03)' } }, y: { grid: { color: 'rgba(0, 0, 0, 0.03)' } } }
-            }
-        });
+            document.querySelectorAll('#sidebar-nav button').forEach(btn => {
+                btn.className = "w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl text-slate-300 hover:bg-slate-800/60 hover:text-white transition text-sm";
+                let icon = btn.querySelector('i');
+                if(icon) icon.className = icon.className.replace('text-indigo-400', 'text-slate-400');
+            });
 
-        // 3. Day of Week Bar Chart
-        new Chart(document.getElementById('weeklyChart').getContext('2d'), {
-            type: 'bar',
-            data: {
-                labels: ['Mon (1)', 'Tue (2)', 'Wed (3)', 'Thu (4)', 'Fri (5)', 'Sat (6)', 'Sun (7)'],
-                datasets: [
-                    {
-                        label: 'Avg Dep Delay',
-                        data: [10.87, 9.16, 8.65, 9.96, 9.43, 7.83, 9.40],
-                        backgroundColor: '#6366f1',
-                        borderRadius: 4
-                    },
-                    {
-                        label: 'Avg Arr Delay',
-                        data: [6.00, 4.25, 3.85, 5.67, 4.76, 1.85, 3.96],
-                        backgroundColor: '#38bdf8',
-                        borderRadius: 4
-                    }
-                ]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'top', labels: { boxWidth: 10, font: { size: 10 } } } },
-                scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(0, 0, 0, 0.03)' } } }
+            const activeBtn = document.querySelector(`[data-target="${viewId}"]`);
+            if(activeBtn) {
+                activeBtn.className = "w-full flex items-center space-x-3 px-3.5 py-2.5 rounded-xl bg-slate-800/90 text-white font-medium text-sm shadow-sm border border-slate-700/50 transition";
+                let icon = activeBtn.querySelector('i');
+                if(icon) icon.className = icon.className.replace('text-slate-400', 'text-indigo-400');
             }
-        });
 
-        // 4. Root Causes Donut Chart
-        new Chart(document.getElementById('rootCauseDonut').getContext('2d'), {
-            type: 'doughnut',
-            data: {
-                labels: ['Late Aircraft (23.47m)', 'Airline Delay (18.97m)', 'Air System (13.48m)', 'Weather (2.92m)', 'Security (0.08m)'],
-                datasets: [{
-                    data: [23.47, 18.97, 13.48, 2.92, 0.08],
-                    backgroundColor: ['#4f46e5', '#06b6d4', '#10b981', '#f59e0b', '#f43f5e'],
-                    borderWidth: 0
-                }]
-            },
-            options: {
-                responsive: true,
-                maintainAspectRatio: false,
-                plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } },
-                cutout: '70%'
-            }
+            const titles = {
+                'overview': 'Active View: Overview',
+                'airlines': 'Active View: Airline Patterns',
+                'monthly': 'Active View: Monthly Averages',
+                'weekly': 'Active View: Day of Week',
+                'root-causes': 'Active View: Root Causes',
+                'graphs': 'Active View: Interactive Graphs'
+            };
+            document.getElementById('current-view-badge').innerText = titles[viewId] || 'Active View';
+            window.scrollTo(0, 0);
+        }
+
+        window.addEventListener('DOMContentLoaded', () => {
+            new Chart(document.getElementById('airlineChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['NK', 'UA', 'F9', 'B6', 'WN'],
+                    datasets: [
+                        { label: 'Avg Dep Delay', data: [15.94, 14.44, 13.35, 11.51, 10.58], backgroundColor: '#4f46e5', borderRadius: 4 },
+                        { label: 'Avg Arr Delay', data: [14.47, 5.43, 12.50, 6.68, 4.37], backgroundColor: '#06b6d4', borderRadius: 4 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { boxWidth: 10, font: { size: 10 } } } }, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(0, 0, 0, 0.03)' } } } }
+            });
+
+            new Chart(document.getElementById('monthlyChart').getContext('2d'), {
+                type: 'line',
+                data: {
+                    labels: ['Jan', 'Feb', 'Mar', 'Apr', 'May', 'Jun', 'Jul', 'Aug', 'Sep', 'Oct', 'Nov', 'Dec'],
+                    datasets: [
+                        { label: 'Avg Dep Delay', data: [9.76, 11.89, 9.66, 7.72, 9.45, 13.99, 11.39, 9.93, 4.82, 4.98, 6.94, 11.78], borderColor: '#4f46e5', backgroundColor: 'rgba(79, 70, 229, 0.05)', borderWidth: 2, fill: true, tension: 0.3 },
+                        { label: 'Avg Arr Delay', data: [5.81, 8.32, 4.92, 3.16, 4.49, 9.60, 6.43, 4.61, -0.77, -0.78, 1.10, 6.09], borderColor: '#06b6d4', backgroundColor: 'rgba(6, 182, 212, 0.03)', borderWidth: 2, fill: true, tension: 0.3 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { boxWidth: 10, font: { size: 10 } } } }, scales: { x: { grid: { color: 'rgba(0, 0, 0, 0.03)' } }, y: { grid: { color: 'rgba(0, 0, 0, 0.03)' } } } }
+            });
+
+            new Chart(document.getElementById('weeklyChart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Mon (1)', 'Tue (2)', 'Wed (3)', 'Thu (4)', 'Fri (5)', 'Sat (6)', 'Sun (7)'],
+                    datasets: [
+                        { label: 'Avg Dep Delay', data: [10.87, 9.16, 8.65, 9.96, 9.43, 7.83, 9.40], backgroundColor: '#6366f1', borderRadius: 4 },
+                        { label: 'Avg Arr Delay', data: [6.00, 4.25, 3.85, 5.67, 4.76, 1.85, 3.96], backgroundColor: '#38bdf8', borderRadius: 4 }
+                    ]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { boxWidth: 10, font: { size: 10 } } } }, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(0, 0, 0, 0.03)' } } } }
+            });
+
+            new Chart(document.getElementById('rootCauseDonut').getContext('2d'), {
+                type: 'doughnut',
+                data: {
+                    labels: ['Late Aircraft (23.47m)', 'Airline Delay (18.97m)', 'Air System (13.48m)', 'Weather (2.92m)', 'Security (0.08m)'],
+                    datasets: [{ data: [23.47, 18.97, 13.48, 2.92, 0.08], backgroundColor: ['#4f46e5', '#06b6d4', '#10b981', '#f59e0b', '#f43f5e'], borderWidth: 0 }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'bottom', labels: { boxWidth: 10, font: { size: 10 } } } }, cutout: '70%' }
+            });
         });
     </script>
 </body>
