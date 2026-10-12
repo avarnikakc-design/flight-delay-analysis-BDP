@@ -324,42 +324,51 @@
             <div id="view-graphs" class="dashboard-view space-y-6">
                 <div>
                     <h3 class="text-xl font-bold text-slate-900">Interactive Pipeline Analytics Graphs</h3>
-                    <p class="text-xs text-slate-500">Rendered directly from PySpark terminal outputs (Airlines, Monthly, Day of Week, and Root Causes).</p>
+                    <p class="text-xs text-slate-500">Rendered directly from PySpark terminal outputs.</p>
                 </div>
 
                 <div class="grid grid-cols-1 lg:grid-cols-2 gap-6">
-                    <!-- Graph 1: Airline Patterns -->
+                    <!-- Graph 1: Average Departure Delay by Airline (add2.jpeg style) -->
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col">
-                        <h4 class="text-sm font-bold text-slate-900 mb-1">1. Delay Patterns Across Airlines</h4>
-                        <p class="text-xs text-slate-500 mb-4">Average Departure vs Arrival Delay (Minutes)</p>
+                        <h4 class="text-sm font-bold text-slate-900 mb-1">Average Departure Delay by Airline</h4>
+                        <p class="text-xs text-slate-500 mb-4">Carrier comparison across 10 carriers (Minutes)</p>
                         <div class="flex-1 relative min-h-[280px]">
-                            <canvas id="airlineChart"></canvas>
+                            <canvas id="add2Chart"></canvas>
                         </div>
                     </div>
 
-                    <!-- Graph 2: Monthly Trends -->
+                    <!-- Graph 2: Top 5 Airlines by Average Arrival Delays (add1.jpeg style) -->
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col">
-                        <h4 class="text-sm font-bold text-slate-900 mb-1">2. Average Delays by Month</h4>
+                        <h4 class="text-sm font-bold text-slate-900 mb-1">Top 5 Airlines by Average Arrival Delays</h4>
+                        <p class="text-xs text-slate-500 mb-4">Impacted carrier benchmarks (Minutes)</p>
+                        <div class="flex-1 relative min-h-[280px]">
+                            <canvas id="add1Chart"></canvas>
+                        </div>
+                    </div>
+
+                    <!-- Graph 3: Monthly Trends -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col">
+                        <h4 class="text-sm font-bold text-slate-900 mb-1">Average Delays by Month</h4>
                         <p class="text-xs text-slate-500 mb-4">Seasonal progression across months</p>
                         <div class="flex-1 relative min-h-[280px]">
                             <canvas id="monthlyChart"></canvas>
                         </div>
                     </div>
 
-                    <!-- Graph 3: Day of Week -->
+                    <!-- Graph 4: Day of Week -->
                     <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col">
-                        <h4 class="text-sm font-bold text-slate-900 mb-1">3. Average Delays by Day of Week</h4>
+                        <h4 class="text-sm font-bold text-slate-900 mb-1">Average Delays by Day of Week</h4>
                         <p class="text-xs text-slate-500 mb-4">Departure vs Arrival averages by day</p>
                         <div class="flex-1 relative min-h-[280px]">
                             <canvas id="weeklyChart"></canvas>
                         </div>
                     </div>
 
-                    <!-- Graph 4: Root Causes Donut -->
-                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col">
-                        <h4 class="text-sm font-bold text-slate-900 mb-1">4. Major Causes of Flight Delays (Root Causes)</h4>
+                    <!-- Graph 5: Root Causes Donut -->
+                    <div class="bg-white p-6 rounded-2xl shadow-sm border border-slate-200/80 flex flex-col lg:col-span-2">
+                        <h4 class="text-sm font-bold text-slate-900 mb-1">Major Causes of Flight Delays (Root Causes)</h4>
                         <p class="text-xs text-slate-500 mb-4">Proportional breakdown of delay factors (Minutes)</p>
-                        <div class="flex-1 relative min-h-[280px] flex items-center justify-center">
+                        <div class="flex-1 relative min-h-[300px] flex items-center justify-center">
                             <canvas id="rootCauseDonut"></canvas>
                         </div>
                     </div>
@@ -408,18 +417,37 @@
         }
 
         window.addEventListener('DOMContentLoaded', () => {
-            new Chart(document.getElementById('airlineChart').getContext('2d'), {
+            // Add2 Chart (Average Departure Delay by Airline)
+            new Chart(document.getElementById('add2Chart').getContext('2d'), {
                 type: 'bar',
                 data: {
-                    labels: ['NK', 'UA', 'F9', 'B6', 'WN'],
-                    datasets: [
-                        { label: 'Avg Dep Delay', data: [15.94, 14.44, 13.35, 11.51, 10.58], backgroundColor: '#4f46e5', borderRadius: 4 },
-                        { label: 'Avg Arr Delay', data: [14.47, 5.43, 12.50, 6.68, 4.37], backgroundColor: '#06b6d4', borderRadius: 4 }
-                    ]
+                    labels: ['NK', 'UA', 'F9', 'B6', 'WN', 'MQ', 'VX', 'AA', 'EV', 'OO'],
+                    datasets: [{
+                        label: 'Average Delay (Minutes)',
+                        data: [15.94, 14.44, 13.35, 11.51, 10.58, 10.14, 9.05, 8.92, 8.71, 7.82],
+                        backgroundColor: '#7dd3fc',
+                        borderRadius: 4
+                    }]
                 },
-                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { boxWidth: 10, font: { size: 10 } } } }, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(0, 0, 0, 0.03)' } } } }
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(0, 0, 0, 0.03)' } } } }
             });
 
+            // Add1 Chart (Top 5 Airlines by Average Arrival Delays)
+            new Chart(document.getElementById('add1Chart').getContext('2d'), {
+                type: 'bar',
+                data: {
+                    labels: ['Spirit Air Lines', 'Frontier Airlines Inc.', 'JetBlue Airways', 'Atlantic Southeast Airlines', 'American Eagle Airlines Inc.'],
+                    datasets: [{
+                        label: 'Average Arrival Delay (Minutes)',
+                        data: [14.47, 12.50, 6.68, 6.58, 6.45],
+                        backgroundColor: '#34d399',
+                        borderRadius: 4
+                    }]
+                },
+                options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { display: false } }, scales: { x: { grid: { display: false }, ticks: { font: { size: 9 } } }, y: { grid: { color: 'rgba(0, 0, 0, 0.03)' } } } }
+            });
+
+            // Monthly Chart
             new Chart(document.getElementById('monthlyChart').getContext('2d'), {
                 type: 'line',
                 data: {
@@ -432,6 +460,7 @@
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { boxWidth: 10, font: { size: 10 } } } }, scales: { x: { grid: { color: 'rgba(0, 0, 0, 0.03)' } }, y: { grid: { color: 'rgba(0, 0, 0, 0.03)' } } } }
             });
 
+            // Weekly Chart
             new Chart(document.getElementById('weeklyChart').getContext('2d'), {
                 type: 'bar',
                 data: {
@@ -444,6 +473,7 @@
                 options: { responsive: true, maintainAspectRatio: false, plugins: { legend: { position: 'top', labels: { boxWidth: 10, font: { size: 10 } } } }, scales: { x: { grid: { display: false } }, y: { grid: { color: 'rgba(0, 0, 0, 0.03)' } } } }
             });
 
+            // Root Cause Donut
             new Chart(document.getElementById('rootCauseDonut').getContext('2d'), {
                 type: 'doughnut',
                 data: {
