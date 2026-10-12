@@ -68,6 +68,7 @@ Bash
 5.open the interactive dashboard in your Windows web browser:
 Bash
    explorer.exe index.html
+   explorer.exe index.html
 
 Suggested Flow for Your Final Review Presentation:
 1.The Infrastructure & Logs: Start by running start-dfs.sh and spark-submit analyze_terminal.py to prove the Big Data pipeline runs live on Hadoop HDFS and PySpark.
